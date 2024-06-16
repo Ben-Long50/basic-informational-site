@@ -1,33 +1,25 @@
-import http from 'http';
-import fs from 'fs';
+import express from 'express';
+import path from 'path';
 
-http
-  .createServer((req, res) => {
-    const reqURL = new URL(req.url, `http://${req.headers.host}`);
-    if (reqURL.pathname === '/') {
-      fs.readFile('index.html', (error, data) => {
-        res.writeHead(200, { 'Content-Type': 'text/html' });
-        res.write(data);
-        return res.end();
-      });
-    } else if (reqURL.pathname === '/about') {
-      fs.readFile('about.html', (error, data) => {
-        res.writeHead(200, { 'Content-Type': 'text/html' });
-        res.write(data);
-        return res.end();
-      });
-    } else if (reqURL.pathname === '/contact-me') {
-      fs.readFile('contact-me.html', (error, data) => {
-        res.writeHead(200, { 'Content-Type': 'text/html' });
-        res.write(data);
-        return res.end();
-      });
-    } else {
-      fs.readFile('404.html', (error, data) => {
-        res.writeHead(404, { 'Content-Type': 'text/html' });
-        res.write(data);
-        return res.end();
-      });
-    }
-  })
-  .listen(8080);
+const app = express();
+const port = 8080;
+
+app.use(express.static('public'));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.resolve('public/index.html'));
+});
+
+app.get('/about', (req, res) => {
+  res.sendFile(path.resolve('public/about.html'));
+});
+
+app.get('/contact-me', (req, res) => {
+  res.sendFile(path.resolve('public/contact-me.html'));
+});
+
+app.use((req, res, next) => {
+  res.status(404).sendFile(path.resolve('public/404.html'));
+});
+
+app.listen(port);
